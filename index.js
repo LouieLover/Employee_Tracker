@@ -80,7 +80,11 @@ function createDepartment() {
             name: "department",
             message: "Enter Department",
             type: "input"
-        }])
+        }]).then(answers => {
+            const department = new Department(answers.department);
+            department.save(employeeTrackerDB.sql);
+            console.log(department);
+        })
     );
 
     // logs the actual query being run
@@ -111,14 +115,20 @@ function createRole() {
                 type: "input",
             },
             {
+                name: "salary",
                 message: "Salary",
                 type: "input"
             },
             {
+                name: "department_id",
                 message: "Department id",
                 type: "input"
             }
-        ])
+        ]).then(answers => {
+            const role = new updateRole(answers.role, answers.salary, answers.department_id);
+            role.save(employeeTrackerDB.sql);
+            console.log(updatedRole);
+        })
     );
 
     // logs the actual query being run
@@ -145,23 +155,30 @@ function createEmployee() {
         },
         inquirer
         .prompt([{
-                name: "Employee",
+                name: "firstname",
                 message: "First Name",
                 type: "input",
             },
             {
+                name: "lastname",
                 message: "Last Name",
                 type: "input",
             },
             {
+                name: "role_id",
                 message: "Role id",
                 type: "input",
             },
             {
+                name: "manager_id",
                 message: "Manager id",
                 type: "input",
             }
-        ])
+        ]).then(answers => {
+            const employee = new UpdateEmployee(answers.firstname, answers, lastname, answers.role_id, answers.manager_id);
+            employee.save(employeeTrackerDB.sql);
+            console.log(UpdatedEmployee);
+        })
     );
 
     // logs the actual query being run
@@ -186,11 +203,15 @@ function updateEmployeeRole() {
         },
         inquirer
         .prompt([{
-            name: "Update Role",
+            name: "Update_Role",
             message: "Update Role",
             type: "input",
 
-        }])
+        }]).then(answers => {
+            const employeeRoll = new updatedEmployeeRole(answers.Update_Role);
+            employeeRoll.save(employeeTrackerDB.sql);
+            console.log(updateEmployeeRole);
+        })
     );
 
     // logs the actual query being run
