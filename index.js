@@ -2,7 +2,7 @@ var mysql = require("mysql");
 const inquirer = require("inquirer");
 
 var connection = mysql.createConnection({
-    host: "localhost",
+    host: "127.0.0.1",
 
     // Your port; if not 3306
     port: 3306,
@@ -19,6 +19,7 @@ connection.connect(function(err) {
     if (err) throw err;
     console.log("connected as id " + connection.threadId);
     afterConnection();
+    start();
 });
 
 function afterConnection() {
@@ -29,13 +30,16 @@ function afterConnection() {
     });
 }
 
+start();
 
 function start() {
     inquirer
         .prompt({
             name: "Employee_Tracker",
             message: "What do you want to do?",
-            choices: ["View Employees", "View Departments", "Add Employee", "Add Department", "Add Role", "Update Employee Role"]
+            choices: ["View Employees", "View Departments", "Add Employee", "Add Department", "Add Role", "Update Employee Role"],
+            type: "checkbox"
+
         })
         .then(function(answer) {
             // based on their answer, either call the bid or the post functions
@@ -50,7 +54,7 @@ function start() {
             } else if (answer.Employee_Tracker === "Add Role") {
                 createRole();
             } else if (answer.Employee_Tracker === "Update Employee Role") {
-                updateEmployee();
+                updateEmployeeRole();
             } else {
                 connection.end();
             }
@@ -58,7 +62,7 @@ function start() {
 }
 
 
-function createDeparment() {
+function createDepartment() {
     console.log("Inserting a new department...\n");
     var query = connection.query(
         "INSERT INTO department SET ?", {
@@ -170,11 +174,9 @@ function updateEmployeeRole() {
     console.log("Updating employee role...\n");
     var query = connection.query(
         "UPDATE employee SET ? WHERE ?", [{
-                quantity: 100
+                employee: ""
             },
-            {
-                flavor: "Rocky Road"
-            }
+
         ],
         function(err, res) {
             if (err) throw err;
@@ -199,7 +201,7 @@ function updateEmployeeRole() {
 
 function viewEmployees() {
     console.log("All employees...\n");
-    connection.query("SELECT * FROM department", function(err, res) {
+    connection.query("SELECT * FROM employee", function(err, res) {
         if (err) throw err;
         // Log all results of the SELECT statement
         console.log(res);
@@ -209,7 +211,7 @@ function viewEmployees() {
 
 function viewDepartments() {
     console.log("All departments...\n");
-    connection.query("SELECT * FROM employee", function(err, res) {
+    connection.query("SELECT * FROM department", function(err, res) {
         if (err) throw err;
         // Log all results of the SELECT statement
         console.log(res);
