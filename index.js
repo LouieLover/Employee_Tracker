@@ -1,4 +1,5 @@
 var mysql = require("mysql");
+const inquirer = require("inquirer");
 
 var connection = mysql.createConnection({
     host: "localhost",
@@ -11,7 +12,7 @@ var connection = mysql.createConnection({
 
     // Your password
     password: "$Mothership24",
-    database: "playlistDB"
+    database: "employeeDB"
 });
 
 connection.connect(function(err) {
@@ -28,11 +29,40 @@ function afterConnection() {
     });
 }
 
+
+function start() {
+    inquirer
+        .prompt({
+            name: "Employee_Tracker",
+            message: "What do you want to do?",
+            choices: ["View Employees", "View Departments", "Add Employee", "Add Department", "Add Role", "Update Employee Role"]
+        })
+        .then(function(answer) {
+            // based on their answer, either call the bid or the post functions
+            if (answer.Employee_Tracker === "View Employees") {
+                viewEmployees();
+            } else if (answer.Employee_Tracker === "View Departments") {
+                viewDepartments();
+            } else if (answer.Employee_Tracker === "Add Employee") {
+                createEmployee();
+            } else if (answer.Employee_Tracker === "Add Department") {
+                createDepartment();
+            } else if (answer.Employee_Tracker === "Add Role") {
+                createRole();
+            } else if (answer.Employee_Tracker === "Update Employee Role") {
+                updateEmployee();
+            } else {
+                connection.end();
+            }
+        });
+}
+
+
 function createDeparment() {
     console.log("Inserting a new department...\n");
     var query = connection.query(
         "INSERT INTO department SET ?", {
-            department: "",
+            department: "answer.department",
 
         },
         function(err, res) {
@@ -40,7 +70,13 @@ function createDeparment() {
             console.log(res.affectedRows + " Department added!\n");
             // Call updateProduct AFTER the INSERT completes
             updateDepartment();
-        }
+        },
+        inquirer
+        .prompt([{
+            name: "department",
+            message: "Enter Department",
+            type: "input"
+        }])
     );
 
     // logs the actual query being run
@@ -61,7 +97,14 @@ function createRole() {
             console.log(res.affectedRows + " Role added!\n");
             // Call updateProduct AFTER the INSERT completes
             updateRole();
-        }
+        },
+        inquirer
+        .prompt([{
+            name: "role",
+            message: "Title, Salary, Department id",
+            type: "input",
+
+        }])
     );
 
     // logs the actual query being run
@@ -83,7 +126,14 @@ function createEmployee() {
             console.log(res.affectedRows + " New Employee added!\n");
             // Call updateProduct AFTER the INSERT completes
             updateEmployee();
-        }
+        },
+        inquirer
+        .prompt([{
+            name: "Employee",
+            message: "First Name, Last Name, Role id, Manager id",
+            type: "input",
+
+        }])
     );
 
     // logs the actual query being run
@@ -105,7 +155,14 @@ function updateEmployeeRole() {
             console.log(res.affectedRows + " products updated!\n");
             // Call deleteProduct AFTER the UPDATE completes
             updatedEmployeeRole();
-        }
+        },
+        inquirer
+        .prompt([{
+            name: "Update Role",
+            message: "Update Role",
+            type: "input",
+
+        }])
     );
 
     // logs the actual query being run
