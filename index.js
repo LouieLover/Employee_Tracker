@@ -11,7 +11,7 @@ var connection = mysql.createConnection({
     user: "root",
 
     // Your password
-    password: "$Mothership24",
+    password: "1234",
     database: "employeeTrackerDB"
 });
 
@@ -19,11 +19,11 @@ connection.connect(function(err) {
     if (err) throw err;
     console.log("connected as id " + connection.threadId);
     afterConnection();
-    start();
+
 });
 
 function afterConnection() {
-    connection.query("SELECT * FROM products", function(err, res) {
+    connection.query("SELECT * FROM department", function(err, res) {
         if (err) throw err;
         console.log(res);
         connection.end();
@@ -97,9 +97,9 @@ function createRole() {
     console.log("Creating a new Role...\n");
     var query = connection.query(
         "INSERT INTO role SET ?", {
-            title: "",
-            salary: "",
-            department_id: "",
+            title: "answers.title",
+            salary: "answers.salary",
+            department_id: "answer.department_id",
 
         },
         function(err, res) {
@@ -141,10 +141,10 @@ function createEmployee() {
     console.log("Creating a new Employee...\n");
     var query = connection.query(
         "INSERT INTO employee SET ?", {
-            first_name: "",
-            last_name: "",
-            role_id: "",
-            manager_id: "",
+            first_name: "answers.first_name",
+            last_name: "answers.last_name",
+            role_id: "answer.role_id",
+            manager_id: "answer.manger_id",
 
         },
         function(err, res) {
@@ -191,7 +191,7 @@ function updateEmployeeRole() {
     console.log("Updating employee role...\n");
     var query = connection.query(
         "UPDATE employee SET ? WHERE ?", [{
-                employee: ""
+                employee: "answers.employee"
             },
 
         ],
