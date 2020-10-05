@@ -1,6 +1,7 @@
 var mysql = require("mysql");
 const inquirer = require("inquirer");
 
+
 var connection = mysql.createConnection({
     host: "127.0.0.1",
 
@@ -17,28 +18,18 @@ var connection = mysql.createConnection({
 
 connection.connect(function(err) {
     if (err) throw err;
-    console.log("connected as id " + connection.threadId);
-    afterConnection();
+    start();
 
 });
-
-function afterConnection() {
-    connection.query("SELECT * FROM department", function(err, res) {
-        if (err) throw err;
-        console.log(res);
-        connection.end();
-    });
-}
-
-start();
+// "View Employees", "View Departments", "Add Employee", "Add Department", "Add Role", "Update Employee Role"
 
 function start() {
     inquirer
         .prompt({
             name: "Employee_Tracker",
             message: "What do you want to do?",
-            choices: ["View Employees", "View Departments", "Add Employee", "Add Department", "Add Role", "Update Employee Role"],
-            type: "checkbox"
+            choices: ["View Employees", "View Departments", "View Role", "Add Employee", "Add Department", "Add Role", "Update Employee Role", "Delete Department", "Quit"],
+            type: "list"
 
         })
         .then(function(answer) {
@@ -47,6 +38,8 @@ function start() {
                 viewEmployees();
             } else if (answer.Employee_Tracker === "View Departments") {
                 viewDepartments();
+            } else if (answer.Employee_Tracker === "View Role") {
+                viewRole();
             } else if (answer.Employee_Tracker === "Add Employee") {
                 createEmployee();
             } else if (answer.Employee_Tracker === "Add Department") {
@@ -55,6 +48,8 @@ function start() {
                 createRole();
             } else if (answer.Employee_Tracker === "Update Employee Role") {
                 updateEmployeeRole();
+            } else if (answer.Employee_Tracker === "Delete Department") {
+                deleteDepartment();
             } else {
                 connection.end();
             }
@@ -64,51 +59,33 @@ function start() {
 
 function createDepartment() {
     console.log("Inserting a new department...\n");
-    var query = connection.query(
-        "INSERT INTO department SET ?", {
-            department: "answer.department",
-
-        },
-        function(err, res) {
-            if (err) throw err;
-            console.log(res.affectedRows + " Department added!\n");
-            // Call updateProduct AFTER the INSERT completes
-            updateDepartment();
-        },
-        inquirer
+    inquirer
         .prompt([{
             name: "department",
             message: "Enter Department",
             type: "input"
         }]).then(answers => {
-            const department = new Department(answers.department);
-            department.save(employeeTrackerDB.sql);
-            console.log(department);
-        })
-    );
+            var query = connection.query("INSERT INTO department SET ?", {
+                    department: answers.department
 
-    // logs the actual query being run
-    console.log("Created Department");
+                },
+                function(err, res) {
+                    if (err) throw err;
+                    console.log(res.affectedRows + " Department added!\n");
+                    // Call updateProduct AFTER the INSERT completes
 
-    start();
+                    console.log(res);
+
+                    start();
+                });
+
+        });
 }
 
-function createRole() {
-    console.log("Creating a new Role...\n");
-    var query = connection.query(
-        "INSERT INTO role SET ?", {
-            title: "answers.title",
-            salary: "answers.salary",
-            department_id: "answer.department_id",
+// logs the actual query being r
 
-        },
-        function(err, res) {
-            if (err) throw err;
-            console.log(res.affectedRows + " Role added!\n");
-            // Call updateProduct AFTER the INSERT completes
-            updateRole();
-        },
-        inquirer
+function createRole() {
+    inquirer
         .prompt([{
                 name: "role",
                 message: "Title",
@@ -125,35 +102,27 @@ function createRole() {
                 type: "input"
             }
         ]).then(answers => {
-            const role = new updateRole(answers.role, answers.salary, answers.department_id);
-            role.save(employeeTrackerDB.sql);
-            console.log(updatedRole);
-        })
-    );
+            var query = connection.query("INSERT INTO role SET ?", {
+                    title: answers.role,
+                    salary: answers.salary,
+                    deparment_id: answers.department_id
 
-    // logs the actual query being run
-    console.log("Created Role");
+                },
+                function(err, res) {
+                    if (err) throw err;
+                    console.log(res.affectedRows + " Role added!\n");
+                    // Call updateProduct AFTER the INSERT completes
 
-    start();
+                    console.log(res);
+
+                    start();
+                });
+
+        });
 }
 
 function createEmployee() {
-    console.log("Creating a new Employee...\n");
-    var query = connection.query(
-        "INSERT INTO employee SET ?", {
-            first_name: "answers.first_name",
-            last_name: "answers.last_name",
-            role_id: "answer.role_id",
-            manager_id: "answer.manger_id",
-
-        },
-        function(err, res) {
-            if (err) throw err;
-            console.log(res.affectedRows + " New Employee added!\n");
-            // Call updateProduct AFTER the INSERT completes
-            updateEmployee();
-        },
-        inquirer
+    inquirer
         .prompt([{
                 name: "firstname",
                 message: "First Name",
@@ -175,57 +144,130 @@ function createEmployee() {
                 type: "input",
             }
         ]).then(answers => {
-            const employee = new UpdateEmployee(answers.firstname, answers, lastname, answers.role_id, answers.manager_id);
-            employee.save(employeeTrackerDB.sql);
-            console.log(UpdatedEmployee);
-        })
-    );
+            var query = connection.query("INSERT INTO employee SET ?", {
+                    first_name: answers.firstname,
+                    last_name: answers.lastname,
+                    role_id: answers.role_id,
+                    manager_id: answers.manager_id
 
-    // logs the actual query being run
-    console.log("Added Employee");
+                },
+                function(err, res) {
+                    if (err) throw err;
+                    console.log(res.affectedRows + " Employee Created!\n");
+                    // Call updateProduct AFTER the INSERT completes
 
-    start();
+                    console.log(res);
+
+                    start();
+                });
+
+        });
 }
+
 
 function updateEmployeeRole() {
-    console.log("Updating employee role...\n");
-    var query = connection.query(
-        "UPDATE employee SET ? WHERE ?", [{
-                employee: "answers.employee"
+    inquirer
+        .prompt([{
+                name: "Update_Role",
+                message: "What is new role id?",
+                type: "input",
             },
+            {
+                name: "employee_id",
+                message: "Which employee do you want to update?",
+                type: "input"
+            }
+        ]).then(answers => {
+            var query = connection.query("UPDATE employee SET ? WHERE ? ", [{
+                        role_id: answers.Update_Role
 
-        ],
+                    },
+                    {
+                        id: answers.employee_id
+                    }
+                ],
+                function(err, res) {
+                    if (err) throw err;
+                    console.log(res.affectedRows + " Updated Employee Role!\n");
+                    // Call updateProduct AFTER the INSERT completes
+
+                    console.log(res);
+
+                    start();
+                });
+
+        });
+}
+
+
+function deleteDepartment() {
+    let departments = [];
+    connection.query("SELECT * FROM department",
         function(err, res) {
             if (err) throw err;
-            console.log(res.affectedRows + " products updated!\n");
-            // Call deleteProduct AFTER the UPDATE completes
-            updatedEmployeeRole();
-        },
-        inquirer
-        .prompt([{
-            name: "Update_Role",
-            message: "Update Role",
-            type: "input",
+            departments = res;
+            inquirer
+                .prompt([{
+                    name: "Delete_Department",
+                    message: "Delete Department id?",
+                    type: "list",
+                    choices: departments.map(item => {
+                        return {
+                            name: item.department,
+                            value: item.id
+                        };
+                    })
+                }]).then(answers => {
+                    var query = connection.query("DELETE FROM department WHERE ? ", [{
+                            id: answers.Delete_Department
+                        }],
+                        function(err, res) {
+                            if (err) throw err;
+                            console.log(res.affectedRows + " Deleted Department Role!\n");
+                            // Call updateProduct AFTER the INSERT completes
 
-        }]).then(answers => {
-            const employeeRoll = new updatedEmployeeRole(answers.Update_Role);
-            employeeRoll.save(employeeTrackerDB.sql);
-            console.log(updateEmployeeRole);
-        })
-    );
+                            console.log(res);
 
-    // logs the actual query being run
-    console.log("Updated Role");
+                            start();
+                        });
 
-    start();
+                });
+        });
+
 }
+
+function deleteRole() {
+    inquirer
+        .prompt([{
+            name: "Delete_Role",
+            message: "Delete Role id?",
+            type: "input",
+        }, ]).then(answers => {
+            var query = connection.query("DELETE role WHERE ? ", [{
+                    id: answers.Delete_Role
+                }],
+                function(err, res) {
+                    if (err) throw err;
+                    console.log(res.affectedRows + " Deleted Role!\n");
+                    // Call updateProduct AFTER the INSERT completes
+
+                    console.log(res);
+
+                    start();
+                });
+
+        });
+}
+// l
+// l
+// logs the actual query being run
 
 function viewEmployees() {
     console.log("All employees...\n");
     connection.query("SELECT * FROM employee", function(err, res) {
         if (err) throw err;
         // Log all results of the SELECT statement
-        console.log(res);
+        console.table(res);
         start();
     });
 }
@@ -235,7 +277,17 @@ function viewDepartments() {
     connection.query("SELECT * FROM department", function(err, res) {
         if (err) throw err;
         // Log all results of the SELECT statement
-        console.log(res);
+        console.table(res);
+        start();
+    });
+}
+
+function viewRole() {
+    console.log("All roles...\n");
+    connection.query("SELECT * FROM role", function(err, res) {
+        if (err) throw err;
+        // Log all results of the SELECT statement
+        console.table(res);
         start();
     });
 }

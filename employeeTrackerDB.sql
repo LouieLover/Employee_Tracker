@@ -6,25 +6,25 @@ USE employeeTrackerDB;
 
 CREATE TABLE department (
   id INT NOT NULL AUTO_INCREMENT,
-  deparment VARCHAR(30) NULL,
+  department VARCHAR(30) ,
   PRIMARY KEY (id)
 );
 
 CREATE TABLE role (
   id INT NOT NULL AUTO_INCREMENT,
-  title VARCHAR(30) NULL,
+  title VARCHAR(30) ,
   salary DECIMAL (8,2),
-  deparment_id INT NULL,
+  deparment_id INT ,
   PRIMARY KEY (id)
  
 );
 
 CREATE TABLE employee (
   id INT NOT NULL AUTO_INCREMENT,
-  first_name VARCHAR(30) NULL,
-  last_name VARCHAR(30) NULL,
-  role_id INT NULL,
-  manager_id INT NULL,
+  first_name VARCHAR(30) ,
+  last_name VARCHAR(30) ,
+  role_id INT ,
+  manager_id INT ,
   PRIMARY KEY (id)
  
 );
