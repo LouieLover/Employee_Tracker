@@ -12,7 +12,7 @@ var connection = mysql.createConnection({
 
     // Your password
     password: "$Mothership24",
-    database: "employeeDB"
+    database: "employeeTrackerDB"
 });
 
 connection.connect(function(err) {
@@ -80,7 +80,9 @@ function createDeparment() {
     );
 
     // logs the actual query being run
-    console.log(query.sql);
+    console.log("Created Department");
+
+    start();
 }
 
 function createRole() {
@@ -100,15 +102,25 @@ function createRole() {
         },
         inquirer
         .prompt([{
-            name: "role",
-            message: "Title, Salary, Department id",
-            type: "input",
-
-        }])
+                name: "role",
+                message: "Title",
+                type: "input",
+            },
+            {
+                message: "Salary",
+                type: "input"
+            },
+            {
+                message: "Department id",
+                type: "input"
+            }
+        ])
     );
 
     // logs the actual query being run
-    console.log(query.sql);
+    console.log("Created Role");
+
+    start();
 }
 
 function createEmployee() {
@@ -129,15 +141,29 @@ function createEmployee() {
         },
         inquirer
         .prompt([{
-            name: "Employee",
-            message: "First Name, Last Name, Role id, Manager id",
-            type: "input",
-
-        }])
+                name: "Employee",
+                message: "First Name",
+                type: "input",
+            },
+            {
+                message: "Last Name",
+                type: "input",
+            },
+            {
+                message: "Role id",
+                type: "input",
+            },
+            {
+                message: "Manager id",
+                type: "input",
+            }
+        ])
     );
 
     // logs the actual query being run
-    console.log(query.sql);
+    console.log("Added Employee");
+
+    start();
 }
 
 function updateEmployeeRole() {
@@ -166,30 +192,27 @@ function updateEmployeeRole() {
     );
 
     // logs the actual query being run
-    console.log(query.sql);
+    console.log("Updated Role");
+
+    start();
 }
 
-function deleteProduct() {
-    console.log("Deleting all strawberry icecream...\n");
-    connection.query(
-        "DELETE FROM products WHERE ?", {
-            flavor: "strawberry"
-        },
-        function(err, res) {
-            if (err) throw err;
-            console.log(res.affectedRows + " products deleted!\n");
-            // Call readProducts AFTER the DELETE completes
-            readProducts();
-        }
-    );
-}
-
-function readProducts() {
-    console.log("Selecting all products...\n");
-    connection.query("SELECT * FROM products", function(err, res) {
+function viewEmployees() {
+    console.log("All employees...\n");
+    connection.query("SELECT * FROM department", function(err, res) {
         if (err) throw err;
         // Log all results of the SELECT statement
         console.log(res);
-        connection.end();
+        start();
+    });
+}
+
+function viewDepartments() {
+    console.log("All departments...\n");
+    connection.query("SELECT * FROM employee", function(err, res) {
+        if (err) throw err;
+        // Log all results of the SELECT statement
+        console.log(res);
+        start();
     });
 }
