@@ -28,7 +28,7 @@ function start() {
         .prompt({
             name: "Employee_Tracker",
             message: "What do you want to do?",
-            choices: ["View Employees", "View Departments", "View Role", "Add Employee", "Add Department", "Add Role", "Update Employee Role", "Delete Department", "Delete Role", "Quit"],
+            choices: ["View Employees", "View Departments", "View Role", "Add Employee", "Add Department", "Add Role", "Update Employee Role", "Delete Department", "Delete Role", "Delete Employee", "Quit"],
             type: "list"
 
         })
@@ -52,6 +52,8 @@ function start() {
                 deleteDepartment();
             } else if (answer.Employee_Tracker === "Delete Role") {
                 deleteRole();
+            } else if (answer.Employee_Tracker === "Delete Employee") {
+                deleteEmployee();
             } else {
                 connection.end();
             }
@@ -262,6 +264,42 @@ function deleteRole() {
                         function(err, res) {
                             if (err) throw err;
                             console.log(res.affectedRows + " Deleted Role!\n");
+                            // Call updateProduct AFTER the INSERT completes
+
+                            console.log(res);
+
+                            start();
+                        });
+
+                });
+        });
+
+}
+
+function deleteEmployee() {
+    let employee = [];
+    connection.query("SELECT * FROM employee",
+        function(err, res) {
+            if (err) throw err;
+            employee = res;
+            inquirer
+                .prompt([{
+                    name: "Delete_Employee",
+                    message: "Delete Employee id?",
+                    type: "list",
+                    choices: employee.map(item => {
+                        return {
+                            name: item.employee,
+                            value: item.id
+                        };
+                    })
+                }]).then(answers => {
+                    var query = connection.query("DELETE FROM employee WHERE ? ", [{
+                            id: answers.Delete_Employee
+                        }],
+                        function(err, res) {
+                            if (err) throw err;
+                            console.log(res.affectedRows + " Deleted Employee!\n");
                             // Call updateProduct AFTER the INSERT completes
 
                             console.log(res);
