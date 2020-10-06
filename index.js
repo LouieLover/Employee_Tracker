@@ -28,7 +28,7 @@ function start() {
         .prompt({
             name: "Employee_Tracker",
             message: "What do you want to do?",
-            choices: ["View Departments", "View Manager", "View Employees", "View Role", "Add Department", "Add Employee", "Add Role", "Update Employee Role", "Delete Department", "Delete Employee", "Delete Role", "Quit"],
+            choices: ["View Departments", "View Manager", "View Employees", "View Role", "Add Department", "Add Employee", "Add Role", "Update Employee Role", "Update Employee Manager", "Delete Department", "Delete Employee", "Delete Role", "Quit"],
             type: "list"
 
         })
@@ -50,6 +50,8 @@ function start() {
                 createRole();
             } else if (answer.Employee_Tracker === "Update Employee Role") {
                 updateEmployeeRole();
+            } else if (answer.Employee_Tracker === "Update Employee Manager") {
+                updateEmployeeManager();
             } else if (answer.Employee_Tracker === "Delete Department") {
                 deleteDepartment();
             } else if (answer.Employee_Tracker === "Delete Role") {
@@ -195,6 +197,40 @@ function updateEmployeeRole() {
                 function(err, res) {
                     if (err) throw err;
                     console.log(res.affectedRows + " Updated Employee Role!\n");
+                    // Call updateProduct AFTER the INSERT completes
+
+                    console.log(res);
+
+                    start();
+                });
+
+        });
+}
+
+function updateEmployeeManager() {
+    inquirer
+        .prompt([{
+                name: "Update_Manager",
+                message: "What is new manager id?",
+                type: "input",
+            },
+            {
+                name: "manager_id",
+                message: "Which manager do you want to update?",
+                type: "input"
+            }
+        ]).then(answers => {
+            var query = connection.query("UPDATE employee SET ? WHERE ? ", [{
+                        manager_id: answers.Update_Manager
+
+                    },
+                    {
+                        id: answers.manager_id
+                    }
+                ],
+                function(err, res) {
+                    if (err) throw err;
+                    console.log(res.affectedRows + " Updated Manager id!\n");
                     // Call updateProduct AFTER the INSERT completes
 
                     console.log(res);
