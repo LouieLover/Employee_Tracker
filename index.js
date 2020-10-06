@@ -28,7 +28,7 @@ function start() {
         .prompt({
             name: "Employee_Tracker",
             message: "What do you want to do?",
-            choices: ["View Employees", "View Departments", "View Role", "Add Employee", "Add Department", "Add Role", "Update Employee Role", "Delete Department", "Delete Role", "Delete Employee", "Quit"],
+            choices: ["View Departments", "View Manager", "View Employees", "View Role", "Add Department", "Add Employee", "Add Role", "Update Employee Role", "Delete Department", "Delete Employee", "Delete Role", "Quit"],
             type: "list"
 
         })
@@ -40,6 +40,8 @@ function start() {
                 viewDepartments();
             } else if (answer.Employee_Tracker === "View Role") {
                 viewRole();
+            } else if (answer.Employee_Tracker === "View Manager") {
+                viewManager();
             } else if (answer.Employee_Tracker === "Add Employee") {
                 createEmployee();
             } else if (answer.Employee_Tracker === "Add Department") {
@@ -318,6 +320,16 @@ function deleteEmployee() {
 function viewEmployees() {
     console.log("All employees...\n");
     connection.query("SELECT * FROM employee", function(err, res) {
+        if (err) throw err;
+        // Log all results of the SELECT statement
+        console.table(res);
+        start();
+    });
+}
+
+function viewManager() {
+    console.log("All managers...\n");
+    connection.query("SELECT manager_id FROM employeeTrackerDb.employee", function(err, res) {
         if (err) throw err;
         // Log all results of the SELECT statement
         console.table(res);
