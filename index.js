@@ -28,7 +28,7 @@ function start() {
         .prompt({
             name: "Employee_Tracker",
             message: "What do you want to do?",
-            choices: ["View Employees", "View Departments", "View Role", "Add Employee", "Add Department", "Add Role", "Update Employee Role", "Delete Department", "Quit"],
+            choices: ["View Employees", "View Departments", "View Role", "Add Employee", "Add Department", "Add Role", "Update Employee Role", "Delete Department", "Delete Role", "Quit"],
             type: "list"
 
         })
@@ -50,6 +50,8 @@ function start() {
                 updateEmployeeRole();
             } else if (answer.Employee_Tracker === "Delete Department") {
                 deleteDepartment();
+            } else if (answer.Employee_Tracker === "Delete Role") {
+                deleteRole();
             } else {
                 connection.end();
             }
@@ -237,28 +239,41 @@ function deleteDepartment() {
 }
 
 function deleteRole() {
-    inquirer
-        .prompt([{
-            name: "Delete_Role",
-            message: "Delete Role id?",
-            type: "input",
-        }, ]).then(answers => {
-            var query = connection.query("DELETE role WHERE ? ", [{
-                    id: answers.Delete_Role
-                }],
-                function(err, res) {
-                    if (err) throw err;
-                    console.log(res.affectedRows + " Deleted Role!\n");
-                    // Call updateProduct AFTER the INSERT completes
+    let role = [];
+    connection.query("SELECT * FROM role",
+        function(err, res) {
+            if (err) throw err;
+            role = res;
+            inquirer
+                .prompt([{
+                    name: "Delete_Role",
+                    message: "Delete Role id?",
+                    type: "list",
+                    choices: role.map(item => {
+                        return {
+                            name: item.role,
+                            value: item.id
+                        };
+                    })
+                }]).then(answers => {
+                    var query = connection.query("DELETE FROM role WHERE ? ", [{
+                            id: answers.Delete_Role
+                        }],
+                        function(err, res) {
+                            if (err) throw err;
+                            console.log(res.affectedRows + " Deleted Role!\n");
+                            // Call updateProduct AFTER the INSERT completes
 
-                    console.log(res);
+                            console.log(res);
 
-                    start();
+                            start();
+                        });
+
                 });
-
         });
+
 }
-// l
+
 // l
 // logs the actual query being run
 
